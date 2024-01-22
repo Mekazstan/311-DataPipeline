@@ -12,8 +12,8 @@ from great_expectations import DataContext
 from airflow.exceptions import AirflowException
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 
 # Data creation function
 def create_csv_data():
@@ -33,7 +33,7 @@ def validateData():
     context = DataContext("/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/gx")
     suite = context.get_expectation_suite("people.validate")
     batch_kwargs = {
-        "path": "/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/dags/people.csv",
+        "path": "/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/people.csv",
         "datasource": "files_datasource",
         "reader_method": "read_csv",
     }
@@ -58,13 +58,13 @@ dag = DAG(
     'create_move_validate',
     default_args=default_args,
     description='DAG to create & populate CSV data, move it to a location and validate the data in the csv',
-    schedule_interval='@daily',
+    schedule='@daily',
 )
 
 # Task to create the CSV data
 create_csv_task = PythonOperator(
     task_id='create_csv',
-    python_command=create_csv_data,
+    python_callable=create_csv_data,
     dag=dag,
 )
 
@@ -78,7 +78,7 @@ move_csv_task = BashOperator(
 # Task to validate the data
 validate_data_task = PythonOperator(
     task_id='validate_data',
-    python_command=validateData,
+    python_callable=validateData,
     dag=dag,
 )
 
