@@ -1,7 +1,7 @@
 """
 _summary_
 Create a data validation task using apache airflow & great expectation library
-NB: Great Expectation library can only be used when the project has been initialized in theworking project directory
+NB: Great Expectation library can only be used when the project has been initialized in the working project directory & an Expectation Suite has been generated.
 
 """
 
@@ -55,7 +55,7 @@ default_args = {
 
 # DAG definition
 dag = DAG(
-    'create_&_validate',
+    'create_and_validate',
     default_args=default_args,
     description='DAG to create & populate CSV data, move it to a location and validate the data in the csv',
     schedule='@daily',
