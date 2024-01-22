@@ -5,3 +5,5 @@
 2. Validate the data using [Great Expectation Library] (Paul Crickard - Data Engineering with Python -- Book)
 3. Make pipelines idempotent
 4. Make pipelines atomic
+
+
