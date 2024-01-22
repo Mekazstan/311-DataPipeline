@@ -1,7 +1,11 @@
 {
   "data_asset_type": null,
-  "expectation_suite_name": "people.validate",
-  "expectations": [],
+  "expectation_suite_name": "people_suite",
+  "expectations": [
+    {
+      
+    }
+  ],
   "ge_cloud_id": null,
   "meta": {
     "great_expectations_version": "0.18.8"

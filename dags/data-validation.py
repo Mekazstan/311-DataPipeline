@@ -1,7 +1,11 @@
 """
 _summary_
 Create a data validation task using apache airflow & great expectation library
-NB: Great Expectation library can only be used when the project has been initialized in the working project directory & an Expectation Suite has been generated.
+NB: Great Expectation library can only be used when 
+1. The project has been initialized in the working project directory 
+2. The Expectation Suite has been generated
+3. The datasource has been set in great_expectations.yml
+4. The run_validation_operator has been set in great_expectations.yml
 
 """
 
@@ -12,8 +16,12 @@ from great_expectations import DataContext
 from airflow.exceptions import AirflowException
 from datetime import datetime, timedelta
 from airflow import DAG
-# from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+import great_expectations as gx
+
+# from great_expectations_provider.operators.great_expectations import (
+#     GreatExpectationsOperator
+# )
 
 # Data creation function
 def create_csv_data():
@@ -30,19 +38,47 @@ def create_csv_data():
     
 # Data validation function
 def validateData():
-    context = DataContext("/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/gx")
-    suite = context.get_expectation_suite("people.validate")
-    batch_kwargs = {
-        "path": "/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/people.csv",
-        "datasource": "files_datasource",
-        "reader_method": "read_csv",
-    }
-    batch = context.get_batch(batch_kwargs, suite)
-    results = context.run_validation_operator("action_list_operator", [batch])
-    if not results["success"]:
+    # Creating a Data Context
+    context = gx.get_context()
+    
+    # Connecting to the data
+    validator = context.sources.pandas_default.read_csv(
+    "/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/people.csv")
+    
+    # Creating Expectations
+    validator.expect_column_values_to_not_be_null("age")
+    validator.expect_column_values_to_be_between(
+        "age", min_value=15, max_value=88
+    )
+    validator.save_expectation_suite()
+    
+    # Validating data
+    checkpoint = context.add_or_update_checkpoint(
+        name="my_quickstart_checkpoint",
+        validator=validator,
+    )
+    
+    checkpoint_result = checkpoint.run()
+    if not checkpoint_result:
         raise AirflowException("Validation Failed")
     else:
+        context.view_validation_result(checkpoint_result)
         print("Validation ran successfully...")
+    
+    
+    # context = DataContext("/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/gx")
+    # suite = context.get_expectation_suite("people_suite")
+    # batch_kwargs = {
+    #     "path": "/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/people.csv",
+    #     "datasource": "files_datasource",
+    #     "reader_method": "read_csv",
+    # }
+    # batch = context._get_batch_v2(batch_kwargs, suite)
+    # results = context.run_validation_operator("action_list_operator", [batch])
+    # if not results["success"]:
+    #     raise AirflowException("Validation Failed")
+    # else:
+    #     print("Validation ran successfully...")
         
         
 # Default arguments for the DAG
