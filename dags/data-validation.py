@@ -12,7 +12,7 @@ from great_expectations import DataContext
 from airflow.exceptions import AirflowException
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.bash import BashOperator
+# from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
 # Data creation function
@@ -55,7 +55,7 @@ default_args = {
 
 # DAG definition
 dag = DAG(
-    'create_move_validate',
+    'create_&_validate',
     default_args=default_args,
     description='DAG to create & populate CSV data, move it to a location and validate the data in the csv',
     schedule='@daily',
@@ -68,12 +68,12 @@ create_csv_task = PythonOperator(
     dag=dag,
 )
 
-# Task to move the CSV file
-move_csv_task = BashOperator(
-    task_id='move_csv',
-    bash_command='mv /home/chukwuemeka/Documents/DataWithPY/311-Pipeline/dags/people.csv /home/chukwuemeka/Documents/DataWithPY/311-Pipeline/',
-    dag=dag,
-)
+# # Task to move the CSV file
+# move_csv_task = BashOperator(
+#     task_id='move_csv',
+#     bash_command='mv /home/chukwuemeka/Documents/DataWithPY/311-Pipeline/dags/people.csv /home/chukwuemeka/Documents/DataWithPY/311-Pipeline/',
+#     dag=dag,
+# )
 
 # Task to validate the data
 validate_data_task = PythonOperator(
@@ -83,5 +83,5 @@ validate_data_task = PythonOperator(
 )
 
 # Set the task dependencies
-create_csv_task >> move_csv_task >> validate_data_task
+create_csv_task  >> validate_data_task
         
