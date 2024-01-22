@@ -12,16 +12,11 @@ NB: Great Expectation library can only be used when
 import sys
 from faker import Faker
 import csv
-from great_expectations import DataContext
 from airflow.exceptions import AirflowException
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 import great_expectations as gx
-
-# from great_expectations_provider.operators.great_expectations import (
-#     GreatExpectationsOperator
-# )
 
 # Data creation function
 def create_csv_data():
@@ -64,21 +59,6 @@ def validateData():
     else:
         context.view_validation_result(checkpoint_result)
         print("Validation ran successfully...")
-    
-    
-    # context = DataContext("/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/gx")
-    # suite = context.get_expectation_suite("people_suite")
-    # batch_kwargs = {
-    #     "path": "/home/chukwuemeka/Documents/DataWithPY/311-Pipeline/people.csv",
-    #     "datasource": "files_datasource",
-    #     "reader_method": "read_csv",
-    # }
-    # batch = context._get_batch_v2(batch_kwargs, suite)
-    # results = context.run_validation_operator("action_list_operator", [batch])
-    # if not results["success"]:
-    #     raise AirflowException("Validation Failed")
-    # else:
-    #     print("Validation ran successfully...")
         
         
 # Default arguments for the DAG
@@ -104,12 +84,6 @@ create_csv_task = PythonOperator(
     dag=dag,
 )
 
-# # Task to move the CSV file
-# move_csv_task = BashOperator(
-#     task_id='move_csv',
-#     bash_command='mv /home/chukwuemeka/Documents/DataWithPY/311-Pipeline/dags/people.csv /home/chukwuemeka/Documents/DataWithPY/311-Pipeline/',
-#     dag=dag,
-# )
 
 # Task to validate the data
 validate_data_task = PythonOperator(
